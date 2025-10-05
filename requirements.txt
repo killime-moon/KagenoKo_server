@@ -1,8 +1,9 @@
 flask
-pymongo
 flask-cors
 google-auth
 google-auth-oauthlib
 requests
 fastapi
 uvicorn
+pymongo
+python-dotenv
