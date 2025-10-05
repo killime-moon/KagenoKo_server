@@ -8,5 +8,6 @@ load_dotenv()
 # On force l'utilisation du certificat CA fourni par certifi
 client = MongoClient(os.getenv("MONGO_URI"), tlsCAFile=certifi.where())
 
-db = client["knk_db"]
+db = client["cluster0"]
 users = db["users"]
+
