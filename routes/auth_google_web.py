@@ -1,48 +1,59 @@
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, Request
+from fastapi.responses import RedirectResponse
+import os, requests
+from urllib.parse import urlencode
 from database import users
-from datetime import datetime, timedelta
-import os
+from models import create_user
 
 router = APIRouter()
 
-def reset_if_needed(user):
-    last_reset = datetime.fromisoformat(user["last_reset"])
-    if datetime.utcnow() - last_reset > timedelta(days=7):
-        user["quota"] = 50
-        user["last_reset"] = datetime.utcnow().isoformat()
-        users.update_one({"google_id": user["google_id"]}, {"$set": user})
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+REDIRECT_URI = "https://kagenoko-server.onrender.com/api/auth/google/callback"
 
-@router.post("/interact")
-async def interact(google_id: str):
+@router.get("/web_login")
+async def web_login():
+    params = {
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "online",
+        "prompt": "consent"
+    }
+    url = f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
+    return RedirectResponse(url)
+
+@router.get("/callback")
+async def google_callback(request: Request):
+    code = request.query_params.get("code")
+    if not code:
+        return {"error": "missing_code"}
+
+    token_url = "https://oauth2.googleapis.com/token"
+    data = {
+        "code": code,
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "redirect_uri": REDIRECT_URI,
+        "grant_type": "authorization_code"
+    }
+    token_res = requests.post(token_url, data=data).json()
+    id_token_data = requests.get(
+        f"https://oauth2.googleapis.com/tokeninfo?id_token={token_res['id_token']}"
+    ).json()
+
+    google_id = id_token_data["sub"]
+    email = id_token_data["email"]
+
+    # Vérifie si l'utilisateur existe
     user = users.find_one({"google_id": google_id})
     if not user:
-        raise HTTPException(status_code=404, detail="user_not_found")
+        user = create_user(google_id, email)
+        users.insert_one(user)
 
-    reset_if_needed(user)
+    # Simule un token de session (ici juste google_id)
+    session_token = google_id
 
-    if user["quota"] <= 0:
-        return {"status": "quota_exceeded", "remaining": 0}
-
-    user["quota"] -= 1
-    users.update_one({"google_id": google_id}, {"$set": {"quota": user["quota"]}})
-    return {"status": "ok", "remaining": user["quota"]}
-
-@router.get("/quota/{google_id}")
-async def get_quota(google_id: str):
-    user = users.find_one({"google_id": google_id})
-    if not user:
-        raise HTTPException(status_code=404, detail="user_not_found")
-    reset_if_needed(user)
-    return {"remaining": user["quota"]}
-
-@router.post("/admin/set_quota")
-async def set_quota(google_id: str, new_quota: int, authorization: str = Header(None)):
-    if authorization != f"Bearer {os.getenv('ADMIN_SECRET')}":
-        raise HTTPException(status_code=401, detail="unauthorized")
-
-    result = users.update_one({"google_id": google_id}, {"$set": {"quota": new_quota}})
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="user_not_found")
-
-    return {"message": "quota_updated", "google_id": google_id, "new_quota": new_quota}
-
+    # Redirige vers Unity via deep link
+    return RedirectResponse(f"unity://login_success?session={session_token}")
