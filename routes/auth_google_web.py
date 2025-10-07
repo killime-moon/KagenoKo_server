@@ -105,7 +105,6 @@ async def login_success(session: str):
     </head>
     <body>
         <div class="msg">Connexion réussie 🎉</div>
-        <div>Ton ID Google : <b>{session}</b></div>
         <div>(Tu peux fermer cette page et retourner dans le jeu)</div>
 
         <script>
@@ -116,5 +115,6 @@ async def login_success(session: str):
     </html>
     """
     return HTMLResponse(content=html_content)
+
 
 
