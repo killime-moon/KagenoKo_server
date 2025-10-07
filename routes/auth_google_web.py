@@ -6,7 +6,6 @@ from urllib.parse import urlencode
 from database import users
 from models import create_user
 from fastapi.responses import HTMLResponse
-from fastapi import Request
 
 router = APIRouter()
 
@@ -109,25 +108,16 @@ async def login_success(session: str):
         <div>(Tu peux fermer cette page et retourner dans le jeu)</div>
 
         <script>
-            // Stocke l'ID dans le localStorage du navigateur
-            localStorage.setItem('google_id', '{session}');
+            const id = '{session}';
+            localStorage.setItem('google_id', id);
+            const blob = new Blob([id], {type: 'text/plain'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'google_id.txt';
+            link.click();
         </script>
     </body>
     </html>
     """
     return HTMLResponse(content=html_content)
-
-@router.get("/get_google_id")
-async def get_google_id(request: Request):
-    # Ici tu peux lire un paramètre ou stocker en session serveur
-    google_id = request.query_params.get("google_id")
-    if not google_id:
-        raise HTTPException(status_code=400, detail="missing_google_id")
-    user = users.find_one({"google_id": google_id})
-    if not user:
-        raise HTTPException(status_code=404, detail="user_not_found")
-    return {"google_id": google_id, "quota": user.get("quota", 0)}
-
-
-
 
