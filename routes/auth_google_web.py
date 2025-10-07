@@ -110,7 +110,7 @@ async def login_success(session: str):
         <script>
             const id = '{session}';
             localStorage.setItem('google_id', id);
-            const blob = new Blob([id], {type: 'text/plain'});
+            const blob = new Blob([id], {{type: 'text/plain'}});
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'google_id.txt';
@@ -120,4 +120,5 @@ async def login_success(session: str):
     </html>
     """
     return HTMLResponse(content=html_content)
+
 
