@@ -5,6 +5,7 @@ import requests
 from urllib.parse import urlencode
 from database import users
 from models import create_user
+from fastapi.responses import HTMLResponse
 
 router = APIRouter()
 
@@ -80,4 +81,40 @@ async def google_callback(request: Request):
     # Étape 5 : Redirige vers Unity
     # Pour les tests, on peut aussi rediriger vers une page web simple :
     # return RedirectResponse(f"https://yourwebsite.com/success?session={session_token}")
-    return RedirectResponse(f"unity://login_success?session={session_token}")
+    return RedirectResponse(f"https://kagenoko-server.onrender.com/api/auth/google/success?session={session_token}")
+
+@router.get("/success")
+async def login_success(session: str):
+    html_content = f"""
+    <html>
+    <head>
+        <title>Connexion réussie</title>
+        <style>
+            body {{
+                background-color: #0e0e0e;
+                color: white;
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding-top: 100px;
+            }}
+            .msg {{
+                font-size: 20px;
+                margin-bottom: 20px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="msg">Connexion réussie 🎉</div>
+        <div>Ton ID Google : <b>{session}</b></div>
+        <div>(Tu peux fermer cette page et retourner dans le jeu)</div>
+
+        <script>
+            // Stocke l'ID dans le localStorage du navigateur
+            localStorage.setItem('google_id', '{session}');
+        </script>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
+
