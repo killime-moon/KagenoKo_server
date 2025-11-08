@@ -12,7 +12,7 @@ router = APIRouter()
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-REDIRECT_URI = "https://kagenoko-server.onrender.com/api/auth/google/callback"
+REDIRECT_URI = "https://concerned-amalea-moonlab-072e772d.koyeb.app/api/auth/google/callback"
 
 # Mémoire temporaire : { session_key: {"google_id": str, "timestamp": float} }
 temp_sessions = {}
@@ -101,7 +101,7 @@ async def google_callback(request: Request):
     temp_sessions[session_key] = {"google_id": google_id, "timestamp": time.time()}
 
     # Étape 5 : redirige vers la page /success
-    return RedirectResponse(f"https://kagenoko-server.onrender.com/api/auth/google/success?session_key={session_key}")
+    return RedirectResponse(f"https://concerned-amalea-moonlab-072e772d.koyeb.app/api/auth/google/success?session_key={session_key}")
 
 
 # ------------------------
@@ -161,3 +161,4 @@ async def get_temp_session(session_key: str):
 async def delete_temp_session(session_key: str):
     temp_sessions.pop(session_key, None)
     return {"status": "deleted"}
+
