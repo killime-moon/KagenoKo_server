@@ -6,7 +6,9 @@ def create_user(patreon_id: str, email: str, tier_name: str):
         "email": email,
         "tier_name": tier_name,
         "quota": 50,
+        "access_token": 0,
         "last_reset": datetime.utcnow().isoformat()
     }
+
 
 
