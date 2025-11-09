@@ -42,7 +42,7 @@ def determine_quota(tier_name: str) -> int:
 
 def reset_if_needed(user):
     """Réinitialise le quota si plus de 7 jours sont passés OU si le tier Patreon a changé."""
-    if user.get("patreon_id") == CREATOR_ID:
+    if user.get("patreon_id") == os.getenv("CREATOR_ID"):
         print(f"👑 Reset ignoré pour le créateur")
         return
     last_reset_str = user.get("last_reset")
@@ -124,6 +124,7 @@ async def set_quota(google_id: str, new_quota: int, authorization: str = Header(
         raise HTTPException(status_code=404, detail="user_not_found")
 
     return {"message": "quota_updated", "patreon_id": google_id, "new_quota": new_quota}
+
 
 
 
