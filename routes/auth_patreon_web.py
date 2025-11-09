@@ -113,7 +113,7 @@ async def patreon_callback(request: Request):
         new_user["last_reset"] = now
         users.insert_one(new_user)
     else:
-        users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": quota}})
+        users.update_one({"patreon_id": patreon_id})
 
     # Stocke session temporaire pour Unity
     temp_sessions[session_key] = {"patreon_id": patreon_id, "timestamp": time.time()}
