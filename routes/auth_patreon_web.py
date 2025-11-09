@@ -95,16 +95,16 @@ async def patreon_callback(request: Request):
         tier_name = tier_data.get("title", "aucun").lower()
 
     # --- Attribution du quota selon le titre du tier ---
-    if "Unlimited" in tier_name:
+    if "unlimited" in tier_name:
         quota = 5000
-    elif "Premium" in tier_name:
+    elif "premium" in tier_name:
         quota = 500
     else:
         quota = 50
     # Création / mise à jour utilisateur
     user = users.find_one({"patreon_id": patreon_id})
     if not user:
-        new_user = create_user(patreon_id, email)
+        new_user = create_user(patreon_id, email, tier_name)
         new_user["quota"] = quota
         users.insert_one(new_user)
     else:
