@@ -92,7 +92,7 @@ def reset_if_needed(user):
         print(f"✅ Quota réinitialisé pour {user['patreon_id']} ({current_tier})")
 
 @router.post("/interact")
-async def interact(google_id: str):
+async def interact(patreon_id: str):
     user = users.find_one({"patreon_id": google_id})
     if not user:
         raise HTTPException(status_code=404, detail="user_not_found")
@@ -107,7 +107,7 @@ async def interact(google_id: str):
     return {"status": "ok", "remaining": user["quota"],"key": os.getenv("UNITY_API_KEY")}
 
 @router.get("/remain")
-async def get_quota(google_id: str):
+async def get_quota(patreon_id: str):
     user = users.find_one({"patreon_id": google_id})
     if not user:
         raise HTTPException(status_code=404, detail="user_not_found")
@@ -124,6 +124,7 @@ async def set_quota(google_id: str, new_quota: int, authorization: str = Header(
         raise HTTPException(status_code=404, detail="user_not_found")
 
     return {"message": "quota_updated", "patreon_id": google_id, "new_quota": new_quota}
+
 
 
 
