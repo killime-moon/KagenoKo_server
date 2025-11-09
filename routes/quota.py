@@ -128,8 +128,26 @@ async def set_quota(google_id: str, new_quota: int, authorization: str = Header(
 
 SECRET = os.getenv("SERVER_SECRET")
 def generate_temp_token():
-    payload = {"exp": time.time() + 60, "key": os.getenv("UNITY_API_KEY")}
-    return jwt.encode(payload, SECRET, algorithm="HS256")
+    if not SECRET:
+        raise RuntimeError("SERVER_SECRET not set")
+    unity_key = os.getenv("UNITY_API_KEY")
+    if not unity_key:
+        raise RuntimeError("UNITY_API_KEY not set")
+
+    exp = datetime.utcnow() + timedelta(seconds=60)
+    payload = {
+        "key": unity_key,
+        "iat": datetime.utcnow(),
+        "exp": exp
+    }
+    token = jwt.encode(payload, SECRET, algorithm="HS256")
+
+    # PyJWT < 2 may return bytes — convert to str if needed
+    if isinstance(token, bytes):
+        token = token.decode("utf-8")
+
+    return token
+
 
 
 
