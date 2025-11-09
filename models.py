@@ -1,9 +1,10 @@
 from datetime import datetime
 
-def create_user(google_id: str, email: str):
+def create_user(patreon_id: str, email: str):
     return {
-        "google_id": google_id,
+        "patreon_id": patreon_id,
         "email": email,
         "quota": 50,
         "last_reset": datetime.utcnow().isoformat()
     }
+
