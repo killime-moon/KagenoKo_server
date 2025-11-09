@@ -87,21 +87,20 @@ async def patreon_callback(request: Request):
     patreon_id = user_json["data"]["id"]
     email = user_json["data"]["attributes"].get("email", "unknown@example.com")
 
-    # Détermine le tier
+    # --- Détermine le tier Patreon ---
     included = user_json.get("included", [])
-    tier_name = "tier_0"
+    tier_name = "aucun"
     if included:
         tier_data = included[0].get("attributes", {})
-        tier_name = tier_data.get("title", "tier_0").lower()
+        tier_name = tier_data.get("title", "aucun").lower()
 
-    # Attribution du quota
-    if "tier_2" in tier_name:
+    # --- Attribution du quota selon le titre du tier ---
+    if "unlimited" in tier_name:
         quota = 5000
-    elif "tier_1" in tier_name:
+    elif "premium" in tier_name:
         quota = 500
     else:
         quota = 50
-
     # Création / mise à jour utilisateur
     user = users.find_one({"patreon_id": patreon_id})
     if not user:
