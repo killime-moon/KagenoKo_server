@@ -112,7 +112,7 @@ async def get_quota(google_id: str):
     if not user:
         raise HTTPException(status_code=404, detail="user_not_found")
     reset_if_needed(user)
-    return {"remaining": user["quota"]}
+    return {"remaining": user["quota"],"tier": user["tier_name"]}
 
 @router.post("/admin/set_quota")
 async def set_quota(google_id: str, new_quota: int, authorization: str = Header(None)):
@@ -124,6 +124,7 @@ async def set_quota(google_id: str, new_quota: int, authorization: str = Header(
         raise HTTPException(status_code=404, detail="user_not_found")
 
     return {"message": "quota_updated", "patreon_id": google_id, "new_quota": new_quota}
+
 
 
 
