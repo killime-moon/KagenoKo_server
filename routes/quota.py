@@ -104,7 +104,7 @@ async def interact(google_id: str):
 
     user["quota"] -= 1
     users.update_one({"patreon_id": google_id}, {"$set": {"quota": user["quota"]}})
-    return {"status": "ok", "remaining": user["quota"]}
+    return {"status": "ok", "remaining": user["quota"],"key": os.getenv("UNITY_API_KEY")}
 
 @router.get("/remain")
 async def get_quota(google_id: str):
@@ -124,6 +124,7 @@ async def set_quota(google_id: str, new_quota: int, authorization: str = Header(
         raise HTTPException(status_code=404, detail="user_not_found")
 
     return {"message": "quota_updated", "patreon_id": google_id, "new_quota": new_quota}
+
 
 
 
