@@ -48,6 +48,7 @@ async def patreon_web_login(session_key: str):
 # --------------------------------------------------
 @router.get("/callback")
 async def patreon_callback(request: Request):
+    now = datetime.utcnow().isoformat()
     code = request.query_params.get("code")
     session_key = request.query_params.get("state")
 
