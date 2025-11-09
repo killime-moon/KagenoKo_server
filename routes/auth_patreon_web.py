@@ -90,10 +90,11 @@ async def patreon_callback(request: Request):
     # --- Détermine le tier Patreon ---
     included = user_json.get("included", [])
     tier_name = "aucun"
-    if included:
-        tier_data = included[0].get("attributes", {})
-        tier_name = tier_data.get("title", "aucun").lower()
-
+    for item in included:
+        if item.get("type") == "tier":
+            attrs = item.get("attributes", {})
+            tier_name = attrs.get("title", "aucun").lower()
+            break
     # --- Attribution du quota selon le titre du tier ---
     if "unlimited" in tier_name:
         quota = 5000
