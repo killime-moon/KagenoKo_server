@@ -3,6 +3,7 @@ from database import users
 from datetime import datetime, timedelta
 import requests
 import os
+import jwt, time
 
 router = APIRouter()
 
@@ -104,7 +105,7 @@ async def interact(patreon_id: str):
 
     user["quota"] -= 1
     users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": user["quota"]}})
-    return {"status": "ok", "remaining": user["quota"],"key": os.getenv("UNITY_API_KEY")}
+    return {"status": "ok", "remaining": user["quota"],"key": generate_temp_token()}
 
 @router.get("/remain")
 async def get_quota(patreon_id: str):
@@ -124,6 +125,12 @@ async def set_quota(google_id: str, new_quota: int, authorization: str = Header(
         raise HTTPException(status_code=404, detail="user_not_found")
 
     return {"message": "quota_updated", "patreon_id": google_id, "new_quota": new_quota}
+
+SECRET = os.getenv("SERVER_SECRET")
+def generate_temp_token():
+    payload = {"exp": time.time() + 60, "key": os.getenv("UNITY_API_KEY")}
+    return jwt.encode(payload, SECRET, algorithm="HS256")
+
 
 
 
