@@ -7,6 +7,7 @@ import threading
 from urllib.parse import urlencode
 from database import users
 from models import create_user
+from datetime import datetime, timedelta
 
 router = APIRouter()
 
@@ -107,6 +108,7 @@ async def patreon_callback(request: Request):
     if not user:
         new_user = create_user(patreon_id, email, tier_name)
         new_user["quota"] = quota
+        new_user["last_reset"] = now
         users.insert_one(new_user)
     else:
         users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": quota}})
