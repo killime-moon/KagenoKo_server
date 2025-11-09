@@ -8,4 +8,5 @@ uvicorn
 pymongo
 pymongo[srv]
 python-dotenv
+PyJWT>=2.8.0
 
