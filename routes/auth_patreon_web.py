@@ -101,7 +101,7 @@ async def patreon_callback(request: Request):
     if "unlimited" in tier_name:
         quota = 5000
     elif "premium" in tier_name:
-        quota = 500
+        quota = 300
     else:
         quota = 50
     # Création / mise à jour utilisateur
