@@ -34,7 +34,7 @@ def determine_quota(tier_name: str) -> int:
     """Retourne le quota selon le nom du tier."""
     tier_name = tier_name.lower()
     if "unlimited" in tier_name:
-        return 5000
+        return 1000
     elif "premium" in tier_name:
         return 300
     else:
@@ -147,6 +147,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
