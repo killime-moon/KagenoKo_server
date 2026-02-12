@@ -20,11 +20,11 @@ def get_current_tier(access_token: str):
     )
     data = res.json()
     included = data.get("included", [])
-    tier_name = "aucun"
+    tier_name = "free"
 
     for item in included:
         if item.get("type") == "tier":
-            tier_name = item.get("attributes", {}).get("title", "aucun").lower()
+            tier_name = item.get("attributes", {}).get("title", "free").lower()
             break
 
     return tier_name
@@ -62,7 +62,7 @@ def reset_if_needed(user):
     now = datetime.utcnow()
 
     # Compare le tier avec celui stocké
-    stored_tier = user.get("tier_name", "aucun").lower()
+    stored_tier = user.get("tier_name", "free").lower()
     tier_changed = (stored_tier != current_tier)
 
     # Vérifie la dernière réinitialisation
@@ -147,6 +147,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
