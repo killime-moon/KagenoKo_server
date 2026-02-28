@@ -110,6 +110,7 @@ async def interact(patreon_id: str,system_input: str, player_input: str):
         users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": user["quota"]}})
     else:
         quota_exceeded = True
+    result=""
     if quota_exceeded == False:
         # --- Génération texte via LLMAPI ---
         payload = {
@@ -187,6 +188,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
