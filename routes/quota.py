@@ -6,6 +6,7 @@ import os
 import jwt, time
 
 router = APIRouter()
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 def get_current_tier(access_token: str):
     """Récupère le tier actuel de l'utilisateur via l'API Patreon."""
@@ -189,6 +190,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
