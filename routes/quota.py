@@ -110,27 +110,27 @@ async def interact(patreon_id: str,system_input: str, player_input: str):
         users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": user["quota"]}})
     else:
         quota_exceeded = True
-    
-    # --- Génération texte via LLMAPI ---
-    payload = {
-        "model": "claude-3-haiku",  # mettre le nom exact depuis LLMAPI
-        "messages": [
-            {"role": "system", "content": system_input},
-            {"role": "user", "content": player_input}
-        ],
-        "temperature": 0.8,
-        "max_tokens": 150
-    }
-    
-    headers = {
-        "Authorization": f"Bearer {LLMAPI_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    response = requests.post("https://api.llmapi.ai/v1/chat/completions", headers=headers, json=payload)
-    result = response.json()
-    print(LLMAPI_KEY)
-    print(result)
+    if quota_exceeded = False:
+        # --- Génération texte via LLMAPI ---
+        payload = {
+            "model": "claude-3-haiku",  # mettre le nom exact depuis LLMAPI
+            "messages": [
+                {"role": "system", "content": system_input},
+                {"role": "user", "content": player_input}
+            ],
+            "temperature": 0.8,
+            "max_tokens": 150
+        }
+        
+        headers = {
+            "Authorization": f"Bearer {LLMAPI_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        response = requests.post("https://api.llmapi.ai/v1/chat/completions", headers=headers, json=payload)
+        result = response.json()
+        print(LLMAPI_KEY)
+        print(result)
     try:
         ai_text = result["choices"][0]["message"]["content"]
     except (KeyError, IndexError):
@@ -187,6 +187,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
