@@ -6,7 +6,7 @@ import os
 import jwt, time
 
 router = APIRouter()
-TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
+LLMAPI_KEY = os.getenv("TOGETHER_API_KEY")
 
 def get_current_tier(access_token: str):
     """Récupère le tier actuel de l'utilisateur via l'API Patreon."""
@@ -107,46 +107,43 @@ async def interact(patreon_id: str, player_input: str):
     # --- Gérer le quota ---
     if user["quota"] > 0:
         user["quota"] -= 1
-        users.update_one(
-            {"patreon_id": patreon_id},
-            {"$set": {"quota": user["quota"]}}
-        )
+        users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": user["quota"]}})
     else:
         quota_exceeded = True
-
+    
+    # --- Génération texte via LLMAPI ---
     payload = {
-        "model": "meta-llama/Meta-Llama-3-8B-Instruct-Turbo",  # modèle exact dans ton dashboard
+        "model": "meta-llama/llama-3-8b-chat",  # mettre le nom exact depuis LLMAPI
         "messages": [
-            {"role": "system", "content": "You are a female, short answers, horror game."},
+            {"role": "system", "content": "You are Mizukya, short answers, horror game."},
             {"role": "user", "content": player_input}
         ],
         "temperature": 0.8,
         "max_tokens": 150
     }
     
-    response = requests.post(
-        "https://api.together.xyz/v1/chat/completions",
-        headers={"Authorization": f"Bearer {TOGETHER_API_KEY}", "Content-Type": "application/json"},
-        json=payload
-    )
+    headers = {
+        "Authorization": f"Bearer {LLMAPI_KEY}",
+        "Content-Type": "application/json"
+    }
     
+    response = requests.post("https://api.llmapi.com/v1/chat/completions", headers=headers, json=payload)
     result = response.json()
-    print(result)
+    
     try:
         ai_text = result["choices"][0]["message"]["content"]
     except (KeyError, IndexError):
-        ai_text = "Erreur génération TogetherAI"
-
-    # --- Génération clé API EdenAI ---
-    temp_key = generate_temp_token()  # ta fonction existante
-
-    # --- Retour à Unity ---
+        ai_text = "Erreur génération LLMAPI"
+    
+    # --- Génération clé EdenAI ---
+    temp_key = generate_temp_token()
+    
     return {
         "status": "ok",
         "remaining": user["quota"],
         "quota_exceeded": quota_exceeded,
-        "key": temp_key,       # Clé pour EdenAI (voix)
-        "reply": ai_text       # Texte Claude Haiku
+        "key": temp_key,
+        "reply": ai_text
     }
 
 @router.get("/remain")
@@ -189,6 +186,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
