@@ -129,7 +129,7 @@ async def interact(patreon_id: str, player_input: str):
     
     response = requests.post("https://api.llmapi.ai/v1/chat/completions", headers=headers, json=payload)
     result = response.json()
-    
+    print(result)
     try:
         ai_text = result["choices"][0]["message"]["content"]
     except (KeyError, IndexError):
@@ -186,6 +186,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
