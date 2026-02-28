@@ -134,9 +134,15 @@ async def interact(patreon_id: str, player_input: str):
         headers=headers,
         json=payload
     )
+    
     result = response.json()
-
-    ai_text = result["content"][0]["text"]
+    
+    if "completion" in result:
+        ai_text = result["completion"]
+    elif "content" in result and len(result["content"]) > 0:
+        ai_text = result["content"][0]["text"]
+    else:
+        ai_text = "Erreur génération Claude Haiku"
 
     # --- Génération clé API EdenAI ---
     temp_key = generate_temp_token()  # ta fonction existante
@@ -190,6 +196,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
