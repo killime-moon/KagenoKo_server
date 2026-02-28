@@ -113,7 +113,7 @@ async def interact(patreon_id: str, player_input: str):
     
     # --- Génération texte via LLMAPI ---
     payload = {
-        "model": "meta-llama/llama-3-8b-chat",  # mettre le nom exact depuis LLMAPI
+        "model": "claude-3-haiku",  # mettre le nom exact depuis LLMAPI
         "messages": [
             {"role": "system", "content": "You are Mizukya, short answers, horror game."},
             {"role": "user", "content": player_input}
@@ -187,6 +187,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
