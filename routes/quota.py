@@ -127,7 +127,7 @@ async def interact(patreon_id: str, player_input: str):
         "Content-Type": "application/json"
     }
     
-    response = requests.post("https://api.llmapi.com/v1/chat/completions", headers=headers, json=payload)
+    response = requests.post("https://api.llmapi.ai/v1/chat/completions", headers=headers, json=payload)
     result = response.json()
     
     try:
@@ -186,6 +186,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
