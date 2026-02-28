@@ -120,17 +120,11 @@ async def interact(patreon_id: str, player_input: str):
         "content-type": "application/json"
     }
 
-    prompt_context = f"""
-    You are Mizukya, a curious but easily scared girl.
-    Keep answers short.
-    Player says: {player_input}
-    """
-
     payload = {
         "model": "claude-3-haiku-20240307",
         "max_tokens": 150,
         "messages": [
-            {"role": "user", "content": prompt_context}
+            {"role": "user", "content": player_input}
         ]
     }
 
@@ -195,6 +189,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
