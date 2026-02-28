@@ -6,7 +6,7 @@ import os
 import jwt, time
 
 router = APIRouter()
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
 
 def get_current_tier(access_token: str):
     """Récupère le tier actuel de l'utilisateur via l'API Patreon."""
@@ -114,35 +114,28 @@ async def interact(patreon_id: str, player_input: str):
     else:
         quota_exceeded = True
 
-    # --- Génération texte via Claude Haiku ---
-    headers = {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json"
-    }
-
     payload = {
-        "model": "claude-3-haiku-20240307",
-        "max_tokens": 150,
+        "model": "meta-llama/Llama-3-8b-chat-hf",  # modèle exact dans ton dashboard
         "messages": [
+            {"role": "system", "content": "You are Mizukya, short answers, horror game."},
             {"role": "user", "content": player_input}
-        ]
+        ],
+        "temperature": 0.8,
+        "max_tokens": 150
     }
-
+    
     response = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers=headers,
+        "https://api.together.xyz/v1/chat/completions",
+        headers={"Authorization": f"Bearer {TOGETHER_API_KEY}", "Content-Type": "application/json"},
         json=payload
     )
     
     result = response.json()
     
-    if "completion" in result:
-        ai_text = result["completion"]
-    elif "content" in result and len(result["content"]) > 0:
-        ai_text = result["content"][0]["text"]
-    else:
-        ai_text = "Erreur génération Claude Haiku"
+    try:
+        ai_text = result["choices"][0]["message"]["content"]
+    except (KeyError, IndexError):
+        ai_text = "Erreur génération TogetherAI"
 
     # --- Génération clé API EdenAI ---
     temp_key = generate_temp_token()  # ta fonction existante
@@ -196,6 +189,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
