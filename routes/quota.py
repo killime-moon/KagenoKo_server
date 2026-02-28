@@ -93,19 +93,67 @@ def reset_if_needed(user):
         print(f"✅ Quota réinitialisé pour {user['patreon_id']} ({current_tier})")
 
 @router.post("/interact")
-async def interact(patreon_id: str):
+async def interact(patreon_id: str, player_input: str):
+    # --- Vérifie l'utilisateur ---
     user = users.find_one({"patreon_id": patreon_id})
     if not user:
         raise HTTPException(status_code=404, detail="user_not_found")
 
     reset_if_needed(user)
 
-    if user["quota"] <= 0:
-        return {"status": "quota_exceeded", "remaining": 0}
+    quota_exceeded = False
 
-    user["quota"] -= 1
-    users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": user["quota"]}})
-    return {"status": "ok", "remaining": user["quota"],"key": generate_temp_token()}
+    # --- Gérer le quota ---
+    if user["quota"] > 0:
+        user["quota"] -= 1
+        users.update_one(
+            {"patreon_id": patreon_id},
+            {"$set": {"quota": user["quota"]}}
+        )
+    else:
+        quota_exceeded = True
+
+    # --- Génération texte via Claude Haiku ---
+    headers = {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json"
+    }
+
+    prompt_context = f"""
+    You are Mizukya, a curious but easily scared girl.
+    Keep answers short.
+    Player says: {player_input}
+    """
+
+    payload = {
+        "model": "claude-3-haiku-20240307",
+        "max_tokens": 150,
+        "messages": [
+            {"role": "user", "content": prompt_context}
+        ]
+    }
+
+    response = requests.post(
+        "https://api.anthropic.com/v1/messages",
+        headers=headers,
+        json=payload
+    )
+    result = response.json()
+
+    ai_text = result["content"][0]["text"]
+
+    # --- Génération clé API EdenAI ---
+    temp_key = generate_temp_token()  # ta fonction existante
+
+    # --- Retour à Unity ---
+    return {
+        "status": "ok",
+        "remaining": user["quota"],
+        "quota_exceeded": quota_exceeded,
+        "key": temp_key,       # Clé pour EdenAI (voix)
+        "reply": ai_text       # Texte Claude Haiku
+    }
 
 @router.get("/remain")
 async def get_quota(patreon_id: str):
@@ -147,6 +195,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
