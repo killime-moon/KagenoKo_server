@@ -110,7 +110,7 @@ async def interact(patreon_id: str,system_input: str, player_input: str):
         users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": user["quota"]}})
     else:
         quota_exceeded = True
-    result=""
+    ai_text=""
     if quota_exceeded == False:
         # --- Génération texte via LLMAPI ---
         payload = {
@@ -132,10 +132,10 @@ async def interact(patreon_id: str,system_input: str, player_input: str):
         result = response.json()
         print(LLMAPI_KEY)
         print(result)
-    try:
-        ai_text = result["choices"][0]["message"]["content"]
-    except (KeyError, IndexError):
-        ai_text = "Erreur génération LLMAPI"
+        try:
+            ai_text = result["choices"][0]["message"]["content"]
+        except (KeyError, IndexError):
+            ai_text = "Erreur génération LLMAPI"
     
     # --- Génération clé EdenAI ---
     temp_key = generate_temp_token()
@@ -188,6 +188,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
