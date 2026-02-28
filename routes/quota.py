@@ -94,7 +94,7 @@ def reset_if_needed(user):
         print(f"✅ Quota réinitialisé pour {user['patreon_id']} ({current_tier})")
 
 @router.post("/interact")
-async def interact(patreon_id: str, player_input: str):
+async def interact(patreon_id: str,system_input: str, player_input: str):
     # --- Vérifie l'utilisateur ---
     user = users.find_one({"patreon_id": patreon_id})
     if not user:
@@ -115,7 +115,7 @@ async def interact(patreon_id: str, player_input: str):
     payload = {
         "model": "claude-3-haiku",  # mettre le nom exact depuis LLMAPI
         "messages": [
-            {"role": "system", "content": "You are Mizukya, short answers, horror game."},
+            {"role": "system", "content": system_input},
             {"role": "user", "content": player_input}
         ],
         "temperature": 0.8,
@@ -187,6 +187,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
