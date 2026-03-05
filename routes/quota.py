@@ -43,17 +43,16 @@ def determine_quota(tier_name: str) -> int:
 
 
 def reset_if_needed(user):
-    """Réinitialise le quota si plus de 7 jours sont passés OU si le tier Patreon a changé."""
     if user.get("patreon_id") == os.getenv("CREATOR_ID"):
         print(f"👑 Reset ignoré pour le créateur")
         return
+
     last_reset_str = user.get("last_reset")
-    access_token = user.get("access_token")  # À stocker à la création / mise à jour
+    access_token = user.get("access_token")
     if not access_token:
         print(f"⚠️ Aucun access_token enregistré pour {user.get('patreon_id')}")
         return
 
-    # Vérifie le tier actuel sur Patreon
     try:
         current_tier = get_current_tier(access_token)
     except Exception as e:
@@ -61,16 +60,28 @@ def reset_if_needed(user):
         return
 
     now = datetime.utcnow()
-
-    # Compare le tier avec celui stocké
     stored_tier = user.get("tier_name", "free").lower()
     tier_changed = (stored_tier != current_tier)
 
-    # Vérifie la dernière réinitialisation
+    # ✅ Pas de last_reset → première connexion, on initialise sans reset du quota
+    if not last_reset_str:
+        users.update_one(
+            {"patreon_id": user["patreon_id"]},
+            {"$set": {"last_reset": now.isoformat(), "tier_name": current_tier}}
+        )
+        print(f"🆕 Première connexion pour {user['patreon_id']}, last_reset initialisé")
+        return
+
     try:
         last_reset = datetime.fromisoformat(last_reset_str)
     except Exception:
-        last_reset = now - timedelta(days=8)  # Force reset si valeur invalide
+        # Valeur corrompue → on corrige sans toucher au quota
+        users.update_one(
+            {"patreon_id": user["patreon_id"]},
+            {"$set": {"last_reset": now.isoformat()}}
+        )
+        print("Error in calcul")
+        return
 
     delta = now - last_reset
 
@@ -187,6 +198,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
