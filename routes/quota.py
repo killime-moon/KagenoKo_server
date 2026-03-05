@@ -86,6 +86,9 @@ def reset_if_needed(user):
     delta = now - last_reset
 
     if delta.days >= 7 or tier_changed:
+        print(delta)
+        print(delta.days)
+        print(tier_changed)
         new_quota = determine_quota(current_tier)
 
         # Met à jour la base de données
@@ -198,6 +201,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
