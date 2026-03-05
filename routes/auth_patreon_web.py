@@ -91,7 +91,7 @@ async def patreon_callback(request: Request):
 
     # --- Détermine le tier Patreon ---
     included = user_json.get("included", [])
-    tier_name = "aucun"
+    tier_name = "free"
     for item in included:
         if item.get("type") == "tier":
             attrs = item.get("attributes", {})
