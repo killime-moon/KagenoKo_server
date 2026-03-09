@@ -64,7 +64,8 @@ def reset_if_needed(user):
     now = datetime.utcnow()
     stored_tier = user.get("tier_name", "free").lower()
     tier_changed = (stored_tier != current_tier)
-
+    if stored_tier == "ban":
+        tier_changed = False
     # ✅ Pas de last_reset → première connexion, on initialise sans reset du quota
     if not last_reset_str:
         users.update_one(
@@ -204,6 +205,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
