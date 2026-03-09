@@ -120,11 +120,13 @@ async def interact(patreon_id: str,system_input: str, player_input: str):
     quota_exceeded = False
 
     # --- Gérer le quota ---
-    if user["quota"] > 0:
+    if user["quota"] > 0 and user["tier_name"] != "ban":
         user["quota"] -= 1
         users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": user["quota"]}})
     else:
         quota_exceeded = True
+        user["quota"] = 0
+        users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": user["quota"]}})
     ai_text=""
     temp_key=""
     if quota_exceeded == False:
@@ -202,6 +204,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
