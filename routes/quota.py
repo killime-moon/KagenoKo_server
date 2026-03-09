@@ -38,6 +38,8 @@ def determine_quota(tier_name: str) -> int:
         return 1000
     elif "premium" in tier_name:
         return 300
+    elif "ban" in tier_name:
+        return 0
     else:
         return 50
 
@@ -200,6 +202,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
