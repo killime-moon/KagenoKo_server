@@ -67,7 +67,7 @@ def reset_if_needed(user):
     if stored_tier == "ban":
         tier_changed = False
         user["quota"] = 0
-        users.update_one({"patreon_id": patreon_id}, {"$set": {"quota": user["quota"]}})
+        users.update_one({"patreon_id": user["patreon_id"]}, {"$set": {"quota": user["quota"]}})
     # ✅ Pas de last_reset → première connexion, on initialise sans reset du quota
     if not last_reset_str:
         users.update_one(
@@ -207,6 +207,7 @@ def generate_temp_token():
         token = token.decode("utf-8")
 
     return token
+
 
 
 
