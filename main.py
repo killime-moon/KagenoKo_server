@@ -9,29 +9,11 @@ app.include_router(auth.router, prefix="/api/auth")
 app.include_router(quota.router, prefix="/api/quota")
 app.include_router(auth_patreon_web.router, prefix="/api/auth/patreon")
 
-PATREON_CLIENT_ID = os.getenv("PATREON_CLIENT_ID")
-PATREON_CLIENT_SECRET = os.getenv("PATREON_CLIENT_SECRET")
-
-def get_creator_access_token():
-    response = requests.post(
-        "https://www.patreon.com/api/oauth2/token",
-        data={
-            "grant_type": "client_credentials",
-            "client_id": PATREON_CLIENT_ID,
-            "client_secret": PATREON_CLIENT_SECRET,
-        }
-    )
-    if response.status_code != 200:
-        print(f"[Patreon] Impossible d'obtenir le token : {response.status_code} {response.text}")
-        return None
-    return response.json().get("access_token")
+PATREON_CREATOR_TOKEN = os.getenv("PATREON_CREATOR_TOKEN")
 
 def fetch_and_display_tiers():
-    token = get_creator_access_token()
-    if not token:
-        return
     headers = {
-        "Authorization": f"Bearer {token}",
+        "Authorization": f"Bearer {PATREON_CREATOR_TOKEN}",
         "Content-Type": "application/json"
     }
 
