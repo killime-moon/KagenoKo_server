@@ -90,7 +90,7 @@ def reset_if_needed(user):
 
     delta = now - last_reset
 
-    if delta.days >= 30 or tier_changed:
+    if delta.days >= 7 or tier_changed:
         print(stored_tier)
         print(current_tier)
         new_quota = determine_quota(current_tier)
