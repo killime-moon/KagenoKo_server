@@ -41,7 +41,7 @@ def determine_quota(tier_name: str) -> int:
     elif "ban" in tier_name:
         return 0
     else:
-        return 50
+        return 75
 
 
 def reset_if_needed(user):
