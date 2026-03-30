@@ -38,6 +38,8 @@ def determine_quota(tier_name: str) -> int:
         return 1000
     elif "premium" in tier_name:
         return 300
+    elif "ultra" in tier_name:
+        return 300
     elif "ban" in tier_name:
         return 0
     else:
