@@ -100,6 +100,8 @@ async def patreon_callback(request: Request):
     # --- Attribution du quota selon le titre du tier ---
     if "unlimited" in tier_name:
         quota = 1000
+    elif "ultra" in tier_name:
+        quota = 600
     elif "premium" in tier_name:
         quota = 300
     else:
