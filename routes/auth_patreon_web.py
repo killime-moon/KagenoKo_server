@@ -105,7 +105,7 @@ async def patreon_callback(request: Request):
     elif "premium" in tier_name:
         quota = 300
     else:
-        quota = 75
+        quota = 50
     # Création / mise à jour utilisateur
     user = users.find_one({"patreon_id": patreon_id})
     if not user:
