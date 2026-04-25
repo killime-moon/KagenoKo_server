@@ -137,7 +137,7 @@ async def interact(patreon_id: str,system_input: str, player_input: str):
     if quota_exceeded == False:
         # --- Génération texte via LLMAPI ---
         payload = {
-            "model": "claude-3-haiku",  # mettre le nom exact depuis LLMAPI
+            "model": "llama-3.1-8b-instruct",  # mettre le nom exact depuis LLMAPI
             "messages": [
                 {"role": "system", "content": system_input},
                 {"role": "user", "content": player_input}
